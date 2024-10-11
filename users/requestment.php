@@ -283,6 +283,16 @@
   <script src="../assets/js/dashboard.js"></script>
   <script src="../assets/js/todolist.js"></script>
   <!-- End custom js for this page -->
+  <script>
+    // Cek apakah ada parameter 'status' di URL
+    const urlParams = new URLSearchParams(window.location.search);
+
+    // Jika status=success, tampilkan pesan sukses
+    if (urlParams.has('status') && urlParams.get('status') === 'success') {
+      alert('Request has been successfully processed!');
+    }
+  </script>
+
 </body>
 
 </html>

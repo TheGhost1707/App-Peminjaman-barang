@@ -315,6 +315,13 @@
       modal.hide();
     });
   </script>
+  <script>
+    // Jika status=error, tampilkan pesan error dengan rincian pesan kesalahan
+    if (urlParams.has('status') && urlParams.get('status') === 'error') {
+      let errorMessage = urlParams.has('message') ? decodeURIComponent(urlParams.get('message')) : 'An error occurred.';
+      alert('Error: ' + errorMessage);
+    }
+  </script>
 
 </body>
 

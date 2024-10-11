@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -14,17 +15,19 @@
       justify-content: center;
       height: 100vh;
     }
-    label{
-        font-weight:bold;
-        font-size: 20px;
+
+    label {
+      font-weight: bold;
+      font-size: 20px;
     }
+
     .login-container {
       background-color: #fff;
       box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
       padding: 40px;
       border-radius: 10px;
       width: 500px;
-      height : 400px;
+      height: 400px;
       max-width: 100%;
       text-align: center;
     }
@@ -37,7 +40,7 @@
 
     .login-container input {
       width: 80%;
-      margin-top:30px;
+      margin-top: 30px;
       padding: 15px;
       margin-bottom: 15px;
       box-sizing: border-box;
@@ -62,30 +65,40 @@
     }
   </style>
 </head>
+
 <body>
-<?php
-    if(isset($_GET['notif'])){
-      if($_GET['notif'] == "gagal"){
-        echo "<script>alert('Username or Password Failed !')</script>";
-      }
+  <?php
+  if (isset($_GET['notif'])) {
+    if ($_GET['notif'] == "gagal") {
+      echo "<script>alert('Username or Password Failed !')</script>";
+    }
   }
-  if(isset($_GET['alert'])){
-    if($_GET['alert'] == "logout"){
+  if (isset($_GET['alert'])) {
+    if ($_GET['alert'] == "logout") {
       echo "<script>alert('Success Logout !')</script>";
     }
-}
-?>
+  }
+  ?>
 
-<div class="login-container">
-    <img src="assets/images/logo.png" alt="Logo" width="200" height="auto"/><br>
+  <div class="login-container">
+    <img src="assets/images/logo.png" alt="Logo" width="200" height="auto" /><br>
     <label for="login">LOGIN</label><br><br>
     <form action="auth.php" method="post">
-        <input type="text" name="email" placeholder="Email" required>
-        <input type="password" name="password" placeholder="Password" required>
-        <button type="submit">Sign in</button>
+      <input type="text" name="email" placeholder="Email" required>
+      <input type="password" name="password" placeholder="Password" required>
+      <button type="submit">Sign in</button>
     </form>
-</div>
+  </div>
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      // Cek apakah ada parameter 'logout' di URL
+      const urlParams = new URLSearchParams(window.location.search);
 
-
+      // Jika logout=success, tampilkan pesan sukses
+      if (urlParams.has('logout') && urlParams.get('logout') === 'success') {
+        alert('Logout successful! You have been logged out.');
+      }
+    });
+  </script>
 </body>
 </html>

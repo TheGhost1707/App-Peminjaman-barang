@@ -228,7 +228,11 @@
                         </div>
                         <div class='mb-3'>
                           <label for='item_type' class='form-label'>Item Type</label>
-                          <input type='text' class='form-control' name='item_type' value='" . htmlspecialchars($row['item_type']) . "' required>
+                            <select class='form-control' name='item_type' required style=height:50px;>
+                              <option value=''>Select Type..</option>
+                              <option value='inspeksi'>Inspeksi</option>
+                              <option value='kalibrasi'>Kalibrasi</option>
+                            </select>
                         </div>
                         <div class='mb-3'>
                           <label for='available_quantity' class='form-label'>Available Quantity</label>
@@ -287,9 +291,13 @@
                     <label for="name" class="form-label">Name</label>
                     <input type="text" class="form-control" id="name" name="item_name" required>
                   </div>
-                  <div class="mb-3">
-                    <label for="type" class="form-label">Type</label>
-                    <input type="text" class="form-control" id="type" name="item_type" required>
+                  <div class='mb-3'>
+                    <label for='item_type' class='form-label'>Item Type</label>
+                    <select class='form-control' name='item_type' required style="height:50px;">
+                      <option value=''>Select Type..</option>
+                      <option value='inspeksi'>Inspeksi</option>
+                      <option value='kalibrasi'>Kalibrasi</option>
+                    </select>
                   </div>
                   <div class="mb-3">
                     <label for="available_qty" class="form-label">Available Quantity</label>
@@ -355,4 +363,5 @@
     });
   </script>
 </body>
+
 </html>

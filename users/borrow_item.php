@@ -30,17 +30,16 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $insert_stmt->execute();
             $insert_stmt->close();
 
-            // Redirect ke halaman sukses atau lainnya
-            header("Location: requestment.php");
-            exit();
-        } else {
-            echo "Error: Jumlah alat yang tersedia tidak mencukupi.";
+            if ($available_quantity >= $requested_quantity) {
+                // Redirect ke halaman sukses dengan parameter sukses
+                header("Location: requestment.php?status=success");
+                exit();
+            } else {
+                // Redirect ke halaman error dengan parameter error dan pesan error
+                header("Location: iventory.php?status=error&message=insufficient_quantity");
+                exit();
+            }
         }
-    } else {
-        echo "Error: Tanggal peminjaman tidak valid.";
     }
-} else {
-    header("Location: dashboard_usr.php");
-    exit();
 }
 ?>
