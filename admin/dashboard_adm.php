@@ -196,24 +196,11 @@
 
                 // Loop untuk mendapatkan data berdasarkan periode
                 foreach ($periods as $period) {
-                  if ($period == 'today') {
-                    $date_condition = "DATE(created_at) = CURDATE()"; // ganti 'created_at' dengan nama kolom tanggal yang sesuai
-                  } elseif ($period == 'week') {
-                    $date_condition = "created_at >= DATE_SUB(CURDATE(), INTERVAL 7 DAY)";
-                  } elseif ($period == 'month') {
-                    $date_condition = "created_at >= DATE_SUB(CURDATE(), INTERVAL 1 MONTH)";
-                  } else {
-                    $date_condition = "created_at >= DATE_SUB(CURDATE(), INTERVAL 1 YEAR)";
-                  }
-
-                  // Ambil data barang masuk
+                  // Ambil semua data barang masuk tanpa batasan waktu
                   $query_in = "SELECT COUNT(*) AS total FROM items";
                   $result_in = $conn->query($query_in);
-                  $total_items[$period] = $result_in->fetch_assoc()['total']; // Simpan total item berdasarkan periode
+                  $total_items[$period] = $result_in->fetch_assoc()['total']; // Simpan total item
                 }
-
-                // Tutup koneksi
-                $conn->close();
                 ?>
                 <h2 class="mb-5"><?php echo $total_items['today']; ?></h2> <!-- Tampilkan total item hari ini -->
               </div>
@@ -226,38 +213,46 @@
                 <img src="../assets/images/dashboard/circle.svg" class="card-img-absolute" alt="circle-image" />
                 <h4 class="font-weight-normal mb-3">Requestment <i class="mdi mdi-account-check mdi-24px float-right"></i></h4>
                 <?php
-                // Koneksi ke database
-                include('../connection.php');
-
-                // Mendapatkan data barang dipinjam
+                // Mendapatkan data barang dipinjam dan alat paling sering dipinjam
                 $total_loans = []; // Array untuk menyimpan total pinjaman
+                $item_names = [];  // Array untuk menyimpan nama alat yang paling sering dipinjam
 
                 // Loop untuk mendapatkan data berdasarkan periode
                 foreach ($periods as $period) {
                   if ($period == 'today') {
-                    $date_condition = "DATE(created_at) = CURDATE()"; // ganti 'created_at' dengan nama kolom tanggal yang sesuai
+                    $date_condition = "DATE(loan_date) = CURDATE()";
                   } elseif ($period == 'week') {
-                    $date_condition = "created_at >= DATE_SUB(CURDATE(), INTERVAL 7 DAY)";
+                    $date_condition = "loan_date >= DATE_SUB(CURDATE(), INTERVAL 7 DAY)";
                   } elseif ($period == 'month') {
-                    $date_condition = "created_at >= DATE_SUB(CURDATE(), INTERVAL 1 MONTH)";
+                    $date_condition = "loan_date >= DATE_SUB(CURDATE(), INTERVAL 1 MONTH)";
                   } else {
-                    $date_condition = "created_at >= DATE_SUB(CURDATE(), INTERVAL 1 YEAR)";
+                    $date_condition = "loan_date >= DATE_SUB(CURDATE(), INTERVAL 1 YEAR)";
                   }
 
-                  // Ambil data barang dipinjam
-                  $query_loans = "SELECT COUNT(*) AS total FROM loans WHERE $date_condition";
-                  $result_loans = $conn->query($query_loans);
-                  $total_loans[$period] = $result_loans->fetch_assoc()['total']; // Simpan total pinjaman berdasarkan periode
-                }
+                  // Ambil nama alat yang paling sering dipinjam dan jumlah pinjamannya
+                  $query_loans = "
+                        SELECT i.item_name, COUNT(l.loan_id) AS total_loans 
+                        FROM loans l 
+                        JOIN items i ON l.item_id = i.item_id 
+                        WHERE $date_condition
+                        GROUP BY i.item_name 
+                        ORDER BY total_loans DESC 
+                        LIMIT 1"; // Ambil alat yang paling banyak dipinjam
 
-                // Tutup koneksi
-                $conn->close();
+                  $result_loans = $conn->query($query_loans);
+                  $row = $result_loans->fetch_assoc();
+
+                  // Simpan total pinjaman dan nama alat ke dalam array
+                  $total_loans[$period] = $row ? $row['total_loans'] : 0; // Jika tidak ada pinjaman, set 0
+                  $item_names[$period] = $row ? $row['item_name'] : 'No Data'; // Jika tidak ada alat, set 'No Data'
+                }
                 ?>
                 <h2 class="mb-5"><?php echo $total_loans['today']; ?></h2> <!-- Tampilkan total pinjaman hari ini -->
               </div>
             </div>
           </div>
         </div>
+
         <div class="row">
           <div class="col-md-12">
             <h3 class="text-center">Data Overview</h3>
@@ -303,6 +298,26 @@
               scales: {
                 y: {
                   beginAtZero: true // Mulai grafik dari angka 0
+                }
+              },
+              responsive: true, // Membuat grafik responsif
+              plugins: {
+                legend: {
+                  position: 'top', // Posisi legend
+                },
+                tooltip: {
+                  callbacks: {
+                    // Menampilkan nama alat di tooltip
+                    afterLabel: function(context) {
+                      const itemNames = [
+                        '<?php echo $item_names['today']; ?>',
+                        '<?php echo $item_names['week']; ?>',
+                        '<?php echo $item_names['month']; ?>',
+                        '<?php echo $item_names['year']; ?>'
+                      ];
+                      return 'Item: ' + itemNames[context.dataIndex];
+                    }
+                  }
                 }
               }
             }
