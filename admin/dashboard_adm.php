@@ -202,7 +202,7 @@
                   $total_items[$period] = $result_in->fetch_assoc()['total']; // Simpan total item
                 }
                 ?>
-                <h2 class="mb-5"><?php echo $total_items['today']; ?></h2> <!-- Tampilkan total item hari ini -->
+                <h2 class="mb-5">Total Items : <?php echo $total_items['today']; ?></h2> <!-- Tampilkan total item hari ini -->
               </div>
             </div>
           </div>
@@ -213,9 +213,12 @@
                 <img src="../assets/images/dashboard/circle.svg" class="card-img-absolute" alt="circle-image" />
                 <h4 class="font-weight-normal mb-3">Requestment <i class="mdi mdi-account-check mdi-24px float-right"></i></h4>
                 <?php
+                // Koneksi ke database
+                include('../connection.php');
+
                 // Mendapatkan data barang dipinjam dan alat paling sering dipinjam
-                $total_loans = []; // Array untuk menyimpan total pinjaman
-                $item_names = [];  // Array untuk menyimpan nama alat yang paling sering dipinjam
+                $total_loans = [];  // Array untuk menyimpan total pinjaman per periode
+                $item_names = [];   // Array untuk menyimpan nama alat yang paling sering dipinjam per periode
 
                 // Loop untuk mendapatkan data berdasarkan periode
                 foreach ($periods as $period) {
@@ -229,15 +232,15 @@
                     $date_condition = "loan_date >= DATE_SUB(CURDATE(), INTERVAL 1 YEAR)";
                   }
 
-                  // Ambil nama alat yang paling sering dipinjam dan jumlah pinjamannya
+                  // Ambil nama alat yang paling sering dipinjam dan jumlah pinjamannya per periode
                   $query_loans = "
-                        SELECT i.item_name, COUNT(l.loan_id) AS total_loans 
-                        FROM loans l 
-                        JOIN items i ON l.item_id = i.item_id 
-                        WHERE $date_condition
-                        GROUP BY i.item_name 
-                        ORDER BY total_loans DESC 
-                        LIMIT 1"; // Ambil alat yang paling banyak dipinjam
+        SELECT i.item_name, COUNT(l.loan_id) AS total_loans 
+        FROM loans l 
+        JOIN items i ON l.item_id = i.item_id 
+        WHERE $date_condition
+        GROUP BY i.item_name 
+        ORDER BY total_loans DESC 
+        LIMIT 1"; // Ambil alat yang paling banyak dipinjam
 
                   $result_loans = $conn->query($query_loans);
                   $row = $result_loans->fetch_assoc();
@@ -246,8 +249,18 @@
                   $total_loans[$period] = $row ? $row['total_loans'] : 0; // Jika tidak ada pinjaman, set 0
                   $item_names[$period] = $row ? $row['item_name'] : 'No Data'; // Jika tidak ada alat, set 'No Data'
                 }
+
+                // Ambil total semua data pinjaman tanpa batasan periode
+                $query_total_all_loans = "SELECT COUNT(*) AS total_all_loans FROM loans";
+                $result_total_all_loans = $conn->query($query_total_all_loans);
+                $total_all_loans = $result_total_all_loans->fetch_assoc()['total_all_loans'];
+
+                // Tutup koneksi
+                $conn->close();
                 ?>
-                <h2 class="mb-5"><?php echo $total_loans['today']; ?></h2> <!-- Tampilkan total pinjaman hari ini -->
+
+                <h2 class="mb-5">Total Requestments : <?php echo $total_all_loans; ?></h2> <!-- Semua pinjaman dari database -->
+                <!-- Tampilkan total pinjaman hari ini -->
               </div>
             </div>
           </div>
